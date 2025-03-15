@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+        header {
+            background: linear-gradient(135deg, #232f3e, #2e3b4e);
+            color: white;
+            text-align: center;
+            padding: 2.5rem 0;
+            font-size: 2rem;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .content {
+            max-width: 900px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .content:hover {
+            transform: translateY(-5px);
+        }
+        h2 {
+            color: #232f3e;
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: #555;
+        }
+        ul {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        ul li {
+            padding: 0.75rem 0;
+            font-size: 1.05rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        ul li:before {
+            content: "•";
+            color: #ff9900;
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        nav {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        nav a {
+            margin: 0 1.5rem;
+            text-decoration: none;
+            color: #ff9900;
+            font-size: 1.2rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        nav a:hover {
+            background-color: #ff9900;
+            color: #fff;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            header {
+                font-size: 1.75rem;
+                padding: 2rem 0;
+            }
+            .content {
+                margin: 2rem 1rem;
+                padding: 1.5rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            nav a {
+                display: block;
+                margin: 0.75rem 0;
+            }
+        }
+        @media (max-width: 480px) {
+            header {
+                font-size: 1.5rem;
+            }
+            .content {
+                margin: 1.5rem 0.5rem;
+                padding: 1rem;
+            }
+            ul li {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>Welcome to the Admin Dashboard</header>
+
+<div class="content">
+    <h2>Admin Actions</h2>
+    <p>As an admin, you can manage products in the system. Here are some of the actions you can perform:</p>
+    <ul>
+        <li>Add new products to the inventory.</li>
+        <li>Edit existing product details.</li>
+        <li>Delete products from the inventory.</li>
+        <li>View all products and their details.</li>
+    </ul>
+
+    <nav>
+        <a href="admin_login.php">Login</a>
+    </nav>
+
+    <p>Login to perform the above functionalities.</p>
+</div>
+
+</body>
+</html>
