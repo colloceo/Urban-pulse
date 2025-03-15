@@ -1,0 +1,788 @@
+<?php
+session_start();
+
+// Redirect logged-in users
+if (isset($_SESSION["user"])) {
+    header("Location: shop.php");
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to UrbanPulse! Explore the latest trends in bags, t-shirts, hoodies, and more. Shop now for great deals and fast shipping.">
+    <title>Welcome to UrbanPulse</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1a2634;
+            --secondary: #2e3b4e;
+            --accent: #ff6f61;
+            --accent-hover: #e65b50;
+            --light: #f4f4f9;
+            --white: #fff;
+            --success: #2e7d32;
+            --success-bg: #e6ffe6;
+            --error: #e63946;
+            --error-bg: #ffe6e6;
+            --shadow: 0 4px 15px rgba(0,0,0,0.05);
+            --border: #ddd;
+            --text-dark: #333;
+            --text-muted: #666;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: clamp(1rem, 3vw, 2rem);
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        header h1 { 
+            font-size: clamp(1.75rem, 5vw, 2.5rem);
+            letter-spacing: 0.5px;
+        }
+        nav {
+            background: var(--secondary);
+            padding: clamp(0.5rem, 2vw, 1rem);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-btn {
+            color: var(--white);
+            background: none;
+            border: none;
+            padding: clamp(0.5rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        .dropdown-btn:hover {
+            background: var(--accent);
+            border-radius: 5px;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--secondary);
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 5px;
+            overflow: hidden;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .dropdown-content a {
+            color: var(--white);
+            padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: clamp(0.85rem, 1.8vw, 1rem);
+            transition: all 0.3s;
+        }
+        .dropdown-content a:hover, .dropdown-content a.active {
+            background: var(--accent);
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .hero {
+            background-image: linear-gradient(rgba(26, 38, 52, 0.7), rgba(46, 59, 78, 0.7)), 
+                              url('/api/placeholder/1920/800');
+            background-size: cover;
+            background-position: center;
+            min-height: clamp(300px, 50vw, 500px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            animation: fadeIn 1s ease-in-out;
+            position: relative;
+            padding: clamp(1rem, 3vw, 2rem);
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--accent);
+        }
+        .hero h2 { 
+            font-size: clamp(1.5rem, 6vw, 3rem); 
+            margin-bottom: 1rem; 
+            position: relative;
+            display: inline-block;
+        }
+        .hero h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(50px, 10vw, 80px);
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+        .hero p { 
+            font-size: clamp(1rem, 3vw, 1.5rem); 
+            margin-bottom: 2rem;
+            max-width: clamp(300px, 80vw, 800px);
+        }
+        .button {
+            padding: clamp(0.7rem, 2vw, 0.9rem) clamp(1.2rem, 3vw, 1.8rem);
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(230, 91, 80, 0.2);
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .button:hover { 
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(230, 91, 80, 0.3);
+        }
+        .button:active {
+            transform: translateY(0);
+        }
+        main {
+            max-width: 1200px;
+            margin: clamp(2rem, 5vw, 3rem) auto;
+            padding: 0 clamp(1rem, 3vw, 1.5rem);
+            flex: 1;
+            width: 100%;
+        }
+        section {
+            margin-bottom: clamp(2rem, 6vw, 4rem);
+        }
+        h3 {
+            font-size: clamp(1.5rem, 4vw, 2rem); 
+            color: var(--primary); 
+            text-align: center; 
+            margin-bottom: clamp(1rem, 3vw, 2rem);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        h3::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: clamp(40px, 8vw, 60px);
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 30vw, 280px), 1fr));
+            gap: clamp(1rem, 3vw, 2rem);
+        }
+        .product {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            padding: clamp(0.75rem, 2vw, 1rem);
+            position: relative;
+        }
+        .product::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+            transform-origin: left;
+        }
+        .product:hover::before {
+            transform: scaleX(1);
+        }
+        .product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .product img {
+            width: 100%;
+            height: clamp(150px, 25vw, 200px);
+            object-fit: contain;
+            object-position: center;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            transition: transform 0.3s;
+            padding: clamp(0.25rem, 1vw, 0.5rem);
+        }
+        .product:hover img {
+            transform: scale(1.05);
+        }
+        .product-details {
+            padding: clamp(0.75rem, 2vw, 1.2rem) clamp(0.25rem, 1vw, 0.5rem) clamp(0.25rem, 1vw, 0.5rem);
+            text-align: center;
+        }
+        .product-details h4 { 
+            font-size: clamp(1.25rem, 3vw, 1.5rem); 
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .product-details p { 
+            color: var(--text-muted); 
+            margin: 0.5rem 0; 
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+        .product-details .price { 
+            color: var(--accent); 
+            font-size: clamp(1rem, 2.5vw, 1.25rem); 
+            font-weight: bold;
+            margin-top: 0.75rem;
+        }
+        .section-card {
+            margin: clamp(2rem, 6vw, 4rem) 0;
+            padding: clamp(1.5rem, 4vw, 2.5rem);
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 1s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--accent);
+        }
+        .testimonial { 
+            font-style: italic; 
+            color: var(--text-muted); 
+            text-align: center; 
+            margin-bottom: 1.5rem;
+            padding: clamp(1rem, 2vw, 1.5rem);
+            background-color: rgba(244, 244, 249, 0.5);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+            font-size: clamp(0.95rem, 2vw, 1.1rem);
+        }
+        .testimonial-author {
+            font-weight: 500;
+            color: var(--primary);
+            margin-top: 0.5rem;
+            display: block;
+            font-size: clamp(0.85rem, 1.8vw, 1rem);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            max-width: clamp(300px, 50vw, 500px);
+            margin: clamp(1rem, 3vw, 2rem) auto 0;
+        }
+        .form-group {
+            position: relative;
+        }
+        label {
+            font-weight: 500;
+            font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            display: block;
+            transition: color 0.3s;
+        }
+        .form-group:focus-within label {
+            color: var(--accent);
+        }
+        input, textarea {
+            padding: clamp(0.7rem, 1.5vw, 0.85rem) 1rem;
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            transition: all 0.3s;
+            background-color: #f9f9f9;
+            font-family: 'Roboto', sans-serif;
+        }
+        input:focus, textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 111, 97, 0.1);
+            background-color: var(--white);
+        }
+        .newsletter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            max-width: clamp(300px, 60vw, 500px);
+            margin: 0 auto;
+            justify-content: center;
+        }
+        .newsletter-form .form-group {
+            flex: 1 1 clamp(200px, 40vw, 400px);
+        }
+        .newsletter-form button {
+            flex: 0 0 auto;
+        }
+        .faq-container {
+            max-width: clamp(600px, 80vw, 800px);
+            margin: 0 auto;
+        }
+        .faq-item {
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .faq-question {
+            padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 2vw, 1.5rem);
+            background-color: #f9f9f9;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: var(--primary);
+            transition: background-color 0.3s;
+            font-size: clamp(0.95rem, 2vw, 1rem);
+        }
+        .faq-question:hover {
+            background-color: #f0f0f5;
+        }
+        .faq-question i {
+            color: var(--accent);
+            transition: transform 0.3s;
+            font-size: clamp(0.9rem, 1.8vw, 1rem);
+        }
+        .faq-answer {
+            padding: 0 clamp(1rem, 2vw, 1.5rem);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+        .faq-item.active .faq-question {
+            background-color: rgba(255, 111, 97, 0.05);
+        }
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+        .faq-item.active .faq-answer {
+            padding: clamp(0.75rem, 2vw, 1rem) clamp(1rem, 2vw, 1.5rem);
+            max-height: 500px;
+        }
+        footer {
+            background: var(--primary);
+            color: var(--white);
+            text-align: center;
+            padding: clamp(1.5rem, 4vw, 2rem) clamp(1rem, 2vw, 1.5rem);
+            margin-top: auto;
+            width: 100%;
+        }
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 25vw, 250px), 1fr));
+            gap: clamp(1rem, 3vw, 2rem);
+            text-align: left;
+        }
+        .footer-section h4 {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        .footer-section h4::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: clamp(30px, 5vw, 40px);
+            height: 2px;
+            background: var(--accent);
+        }
+        .footer-section ul {
+            list-style: none;
+        }
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        .footer-section a {
+            color: var(--light);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+        .footer-section a:hover {
+            color: var(--accent);
+        }
+        .social-media {
+            display: flex;
+            gap: clamp(0.75rem, 2vw, 1rem);
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        .social-media a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: clamp(35px, 5vw, 40px);
+            height: clamp(35px, 5vw, 40px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+        .social-media a:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+        .copyright {
+            text-align: center;
+            padding-top: clamp(1rem, 3vw, 2rem);
+            margin-top: clamp(1rem, 3vw, 2rem);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: clamp(0.85rem, 2vw, 1rem);
+        }
+        #back-to-top {
+            position: fixed;
+            bottom: clamp(15px, 3vw, 20px);
+            right: clamp(15px, 3vw, 20px);
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            width: clamp(40px, 6vw, 45px);
+            height: clamp(40px, 6vw, 45px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            cursor: pointer;
+            display: none;
+            z-index: 1000;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(230, 91, 80, 0.3);
+        }
+        #back-to-top:hover { 
+            background: var(--accent-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(230, 91, 80, 0.4);
+        }
+        .loader {
+            border: 5px solid rgba(244, 244, 249, 0.3);
+            border-top: 5px solid var(--accent);
+            border-radius: 50%;
+            width: clamp(40px, 8vw, 50px);
+            height: clamp(40px, 8vw, 50px);
+            animation: spin 1s linear infinite;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+        @keyframes spin { 
+            0% { transform: translate(-50%, -50%) rotate(0deg); } 
+            100% { transform: translate(-50%, -50%) rotate(360deg); } 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+        @media (max-width: 1024px) {
+            .hero { min-height: 400px; }
+            .product-list { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+            .newsletter-form { flex-direction: column; }
+            .newsletter-form .form-group { flex: 1 1 100%; }
+        }
+        @media (max-width: 768px) {
+            header h1, h3 { font-size: clamp(1.5rem, 4vw, 1.75rem); }
+            .hero h2 { font-size: clamp(1.25rem, 5vw, 2rem); }
+            .hero p { font-size: clamp(0.9rem, 2.5vw, 1rem); }
+            .hero { min-height: 350px; }
+            .section-card { padding: clamp(1rem, 3vw, 2rem); }
+            .footer-content { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .product img { height: clamp(120px, 20vw, 150px); }
+            .hero { min-height: 300px; }
+            .section-card { padding: clamp(0.75rem, 2vw, 1.5rem); }
+            .product-details h4 { font-size: clamp(1rem, 2.5vw, 1.25rem); }
+            .product-details p { font-size: clamp(0.8rem, 1.8vw, 0.9rem); }
+            .product-details .price { font-size: clamp(0.9rem, 2vw, 1rem); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader"></div>
+    <header>
+        <h1>Welcome to UrbanPulse</h1>
+    </header>
+    <nav>
+        <div class="nav-container">
+            <div class="dropdown">
+                <button class="dropdown-btn">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+                <div class="dropdown-content">
+                    <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
+                    <a href="login.php"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <a href="register.php"><i class="fas fa-user-plus"></i> Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="hero">
+        <h2>Shop the Latest Trends</h2>
+        <p>Discover premium bags, t-shirts, hoodies, and more with fast shipping and great prices!</p>
+        <a href="login.php" class="button"><i class="fas fa-shopping-bag"></i> Shop Now</a>
+    </div>
+    <main>
+        <section>
+            <h3>Featured Products</h3>
+            <div class="product-list">
+                <div class="product">
+                    <img src="https://th.bing.com/th/id/R.28e207b477f86e4ddefcd2ad4ed95866?rik=eNKk4VablzELiw&riu=http%3a%2f%2fbensbargains.net%2fthecheckout%2fwp-content%2fuploads%2f2013%2f07%2fbags_herschel.jpg&ehk=hwKRmF%2bs5Fm9StVQ4eoizRB7f1OQJrw2R5XU4aUN7ho%3d&risl=&pid=ImgRaw&r=0" alt="Bag with 2 Extra Pockets">
+                    <div class="product-details">
+                        <h4>Bag</h4>
+                        <p>Bag with 2 Extra Pockets</p>
+                        <p class="price">KSH 1,200</p>
+                    </div>
+                </div>
+                <div class="product">
+                    <img src="https://media.endclothing.com/media/f_auto,q_auto:eco/prodmedia/media/catalog/product/0/6/06-11-2018_stussy_smoothstockappliquehoody_black_118285-blac_blr_1.jpg" alt="Black Color Stylish Hoodie">
+                    <div class="product-details">
+                        <h4>Hoodie</h4>
+                        <p>Black Color Stylish Hoodie</p>
+                        <p class="price">KSH 1,500</p>
+                    </div>
+                </div>
+                <div class="product">
+                    <img src="https://th.bing.com/th/id/OIP.KHK-xwnN0PQVqITIiN7wQQHaFu?rs=1&pid=ImgDetMain" alt="Durable Ceramic Mug">
+                    <div class="product-details">
+                        <h4>Mug</h4>
+                        <p>Durable Ceramic Mug</p>
+                        <p class="price">KSH 200</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section-card">
+            <h3>Customer Testimonials</h3>
+            <div class="testimonial">
+                "I absolutely love my new bag from UrbanPulse! The quality is exceptional and it was delivered faster than expected. I'll definitely be shopping here again soon."
+                <span class="testimonial-author">— Jane D.</span>
+            </div>
+            <div class="testimonial">
+                "The customer service team at UrbanPulse is amazing. They helped me exchange a hoodie for a different size with no hassle at all. Highly recommend!"
+                <span class="testimonial-author">— John S.</span>
+            </div>
+        </section>
+        
+        <section class="section-card">
+            <h3>Subscribe to Our Newsletter</h3>
+            <p style="text-align: center; margin-bottom: 1.5rem;">Stay updated with our latest products, promotions, and style tips.</p>
+            <form action="subscribe.php" method="post" class="newsletter-form">
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                </div>
+                <button type="submit" class="button">
+                    <i class="fas fa-paper-plane"></i> Subscribe
+                </button>
+            </form>
+        </section>
+        
+        <section class="section-card">
+            <h3>Frequently Asked Questions</h3>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What is your return policy? <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>We offer a 30-day return policy on all unworn and unused items. Returns must be in original packaging with tags attached. Shipping costs for returns are the responsibility of the customer unless the item is defective.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How long does shipping take? <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Standard shipping within Kenya takes 2-4 business days. International shipping typically takes 7-14 business days depending on the destination country and customs processing.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Do you offer international shipping? <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, we ship to most countries worldwide. International shipping rates vary based on location and package weight. You can calculate shipping costs at checkout before completing your purchase.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section-card">
+            <h3>Contact Us</h3>
+            <form action="contact.php" method="post">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-email">Email:</label>
+                    <input type="email" id="contact-email" name="email" placeholder="Enter your email address" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message:</label>
+                    <textarea id="message" name="message" placeholder="Type your message here..." rows="5" required></textarea>
+                </div>
+                <button type="submit" class="button">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>About UrbanPulse</h4>
+                <p>We offer high-quality fashion items at affordable prices. Our mission is to help you express your style with confidence.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="shop.php">Shop</a></li>
+                    <li><a href="about.php">About Us</a></li>
+                    <li><a href="contact.php">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Customer Service</h4>
+                <ul>
+                    <li><a href="faq.php">FAQ</a></li>
+                    <li><a href="returns.php">Returns & Exchanges</a></li>
+                    <li><a href="shipping.php">Shipping Information</a></li>
+                    <li><a href="privacy.php">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Connect With Us</h4>
+                <div class="social-media">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© <?php echo date("Y"); ?> UrbanPulse. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <button id="back-to-top" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <script>
+        // Loader management with timeout fallback
+        const loader = document.getElementById("loader");
+        window.addEventListener("load", () => {
+            loader.style.display = "none";
+        });
+        setTimeout(() => {
+            loader.style.display = "none";
+        }, 5000);
+
+        // Back to top button
+        const backToTopButton = document.getElementById("back-to-top");
+        window.addEventListener("scroll", () => {
+            backToTopButton.style.display = window.scrollY > 300 ? "block" : "none";
+        });
+        backToTopButton.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        // FAQ accordion with dynamic height
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            const answer = item.querySelector('.faq-answer');
+            question.addEventListener('click', () => {
+                const isOpen = item.classList.contains('active');
+                faqItems.forEach(faq => faq.classList.remove('active'));
+                if (!isOpen) {
+                    item.classList.add('active');
+                    answer.style.maxHeight = `${answer.scrollHeight}px`;
+                } else {
+                    answer.style.maxHeight = "0";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
