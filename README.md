@@ -60,7 +60,7 @@ Urban Pulse is a modern and user-friendly e-commerce website designed to provide
 For inquiries, suggestions, or collaborations:
 - **Email:** collooceo@gmail.com
 - **GitHub:** [Collins Otieno](https://github.com/your-username)
-- **LinkedIn:** [Your LinkedIn Profile](https://linkedin.com/in/your-profile)
+- **LinkedIn:** [COLLOCEO](https://linkedin.com/in/your-profile)
 
 ---
 ### 📜 License
