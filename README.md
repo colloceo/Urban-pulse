@@ -29,7 +29,7 @@ Urban Pulse is a modern and user-friendly e-commerce website designed to provide
 ### Steps
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-username/urban-pulse.git
+   git clone https://github.com/colloceo/Urban-pulse.git
    cd urban-pulse
    ```
 2. Create a virtual environment and activate it:
