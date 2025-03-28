@@ -13,48 +13,20 @@ Urban Pulse is a modern and user-friendly e-commerce website designed to provide
 - **Responsive Design** – Fully optimized for mobile and desktop use.
 
 ## 🛠️ Technologies Used
-- **Frontend:** HTML, CSS (Bootstrap/Tailwind CSS), JavaScript
-- **Backend:** Django (Python)
+- **Frontend:** HTML, CSS , JavaScript
+- **Backend:** PHP
 - **Database:** MySQL
-- **APIs:** Django Rest Framework (DRF)
+- **APIs:** Daraja api
 - **Deployment:** Docker (for production setup)
 
 ## 🚀 Installation & Setup
 ### Prerequisites
-- Python (3.x)
-- Django
+- XAMPP
+- Daraja api
 - MySQL
 - Docker (optional for deployment)
 
-### Steps
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/colloceo/Urban-pulse.git
-   cd urban-pulse
-   ```
-2. Create a virtual environment and activate it:
-   ```sh
-   python -m venv venv
-   source venv/bin/activate  # On Windows use: venv\Scripts\activate
-   ```
-3. Install dependencies:
-   ```sh
-   pip install -r requirements.txt
-   ```
-4. Configure the database:
-   - Update the `.env` file with your database credentials.
-   - Run migrations:
-     ```sh
-     python manage.py migrate
-     ```
-5. Start the development server:
-   ```sh
-   python manage.py runserver
-   ```
-6. Open the website in your browser:
-   ```sh
-   http://127.0.0.1:8000/
-   ```
+   
 
 ## 📬 Contact
 For inquiries, suggestions, or collaborations:
