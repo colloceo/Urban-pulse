@@ -462,8 +462,8 @@ try {
 <body>
     <div class="loader" id="loader"></div>
 
-    <!-- Header -->
-    <header>
+   <!-- Header -->
+   <header>
         <nav class="navbar navbar-expand-md">
             <div class="container">
                 <a class="navbar-brand" href="index.php">
@@ -474,21 +474,22 @@ try {
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.php"><i class="fas fa-home me-1"></i> Home</a>
-                        </li>
+                        
                         <li class="nav-item">
                             <a class="nav-link" href="shop.php"><i class="fas fa-shopping-bag me-1"></i> Shop</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="about.php"><i class="fas fa-info-circle me-1"></i> About</a>
+                             <a href="cart.php" class="nav-link"><i class="fas fa-shopping-cart me-1"></i> Cart</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="contact.php"><i class="fas fa-envelope me-1"></i> Contact</a>
+                            <a href="checkout.php" class="nav-link active"><i class="fas fa-credit-card me-1"></i> Checkout</a>
+                        </li>
+                        <li>
+                            <a href="track.php" class="nav-link"><i class="fas fa-truck me-1"></i> Track Orders</a>
                         </li>
                     </ul>
                     <div class="d-flex gap-2">
-                        <a href="cart.php" class="btn btn-outline-primary"><i class="fas fa-shopping-cart me-1"></i> Cart</a>
+                       
                         <a href="logout.php" class="btn btn-outline-primary"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
                     </div>
                 </div>
@@ -508,14 +509,14 @@ try {
                 <div class="col-md-6">
                     <div class="checkout-container">
                         <h2>Billing & Payment Information</h2>
-                        <form id="payment-form" action="checkout.php" method="post">
+                        <form id="payment-form" action="mpesa.php" method="post">
                             <div class="form-group">
                                 <label for="name">Full Name</label>
-                                <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user_name); ?>" required placeholder="Collins Ceo">
+                                <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user_name); ?>" readonly required>
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="email" id="email" name="email" required placeholder="collinsceo@example.com">
+                                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" readonly required>
                             </div>
                             <div class="form-group">
                                 <label for="address">Address</label>

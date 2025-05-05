@@ -304,9 +304,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <li class="nav-item">
                             <a class="nav-link" href="index.php"><i class="fas fa-home me-1"></i> Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="shop.php"><i class="fas fa-shopping-bag me-1"></i> Shop</a>
-                        </li>
+                       
                         <li class="nav-item">
                             <a class="nav-link" href="about.php"><i class="fas fa-info-circle me-1"></i> About</a>
                         </li>
