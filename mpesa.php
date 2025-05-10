@@ -1,14 +1,26 @@
 <?php
 session_start();
 
-$shortcode = '174379';
-$passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
-$consumer_key = 'TR1aVIzDZh7V2hEJiSfpGtUHXOv0PVK7XpRyRUJtJKOdR8Il';
-$consumer_secret = 'rL7CiQcT0aHT4l87sRCD9MkoGZxn48NGt5LAkNeP2Alddi2AHLGMZHq8zbacrbCv';
+// Load environment variables
+require_once 'vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
-// Africa's Talking credentials (manual HTTP API)
-$at_api_key = "atsk_04bad0ea95d4a99b1b6a85d2a69fadcbe773b57a4ec14055fc47f895fa8348fb9a390ea5";
-$at_username = "sandbox";
+$shortcode = $_ENV['MPESA_SHORTCODE'];
+$passkey = $_ENV['MPESA_PASSKEY'];
+$consumer_key = $_ENV['MPESA_CONSUMER_KEY'];
+$consumer_secret = $_ENV['MPESA_CONSUMER_SECRET'];
+$callback_url = $_ENV['MPESA_CALLBACK_URL'];
+
+// Africa's Talking credentials
+$at_api_key = $_ENV['AT_API_KEY'];
+$at_username = $_ENV['AT_USERNAME'];
+
+// Mailtrap SMTP credentials
+$smtp_host = $_ENV['SMTP_HOST'];
+$smtp_port = $_ENV['SMTP_PORT'];
+$smtp_username = $_ENV['SMTP_USERNAME'];
+$smtp_password = $_ENV['SMTP_PASSWORD'];
 
 // Generate access token for M-Pesa
 function generateAccessToken($consumer_key, $consumer_secret) {
@@ -22,7 +34,14 @@ function generateAccessToken($consumer_key, $consumer_secret) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
     $response = curl_exec($ch);
+    $curl_error = curl_error($ch);
     curl_close($ch);
+
+    if ($response === false) {
+        error_log("Access token generation failed: " . $curl_error);
+        header("Location: error.php?message=" . urlencode("Failed to generate access token. Please try again."));
+        exit();
+    }
 
     $response_data = json_decode($response, true);
     return $response_data['access_token'];
@@ -37,17 +56,16 @@ function formatPhoneNumber($phone) {
         $phone = substr($phone, 1);
     }
     if (strlen($phone) !== 12 || substr($phone, 0, 3) !== '254') {
-        die("Invalid phone number format. Use 2547xxxxxxxxx (e.g., 254712345678).");
+        error_log("Invalid phone number: $phone");
+        header("Location: checkout.php?error=" . urlencode("Invalid phone number format. Use 2547xxxxxxxxx (e.g., 254712345678)."));
+        exit();
     }
     return $phone;
 }
 
 // Function to send email notification (manual SMTP with Mailtrap)
 function sendOrderEmail($email, $order_id, $cart_items, $total) {
-    $smtp_host = "smtp.mailtrap.io";
-    $smtp_port = 2525;
-    $smtp_username = "28daa6a17a150f";
-    $smtp_password = "0ce9fe9ec98278";
+    global $smtp_host, $smtp_port, $smtp_username, $smtp_password;
 
     $from = "no-reply@urbanpulse.com";
     $subject = "Order Confirmation - Order #$order_id";
@@ -112,16 +130,23 @@ function sendOrderSMS($phone, $order_id, $total) {
     curl_close($ch);
 }
 
-$access_token = generateAccessToken($consumer_key, $consumer_secret);
+// Log session data for debugging
+error_log("Session ID: " . session_id());
+error_log("Session data on mpesa.php load: " . print_r($_SESSION, true));
 
-$totalAmount = $_POST['totalAmount'];
-$mpesa_number = $_POST['mpesa_number'];
+// Validate session data
+$totalAmount = $_SESSION['totalAmount'] ?? null;
+$mpesa_number = $_SESSION['mpesa_number'] ?? null;
+$email = $_SESSION['email'] ?? null;
 
-if (!isset($mpesa_number) || empty($mpesa_number)) {
-    die("M-Pesa number is required.");
+if (!isset($totalAmount, $mpesa_number, $_SESSION['order_id'], $_SESSION['cart_items'], $email)) {
+    error_log("Missing session data: " . print_r($_SESSION, true));
+    header("Location: checkout.php?error=" . urlencode("Required session data missing. Please complete the checkout process."));
+    exit();
 }
 
 $mpesa_number = formatPhoneNumber($mpesa_number);
+$access_token = generateAccessToken($consumer_key, $consumer_secret);
 
 $timestamp = date('YmdHis');
 $password_string = $shortcode . $passkey . $timestamp;
@@ -142,7 +167,7 @@ $request_data = [
     'PartyA' => $mpesa_number,
     'PartyB' => $shortcode,
     'PhoneNumber' => $mpesa_number,
-    'CallBackURL' => 'https://mydomain.com/path/mpesa_callback.php',
+    'CallBackURL' => $callback_url,
     'AccountReference' => 'UrbanPulse',
     'TransactionDesc' => 'Payment for order',
 ];
@@ -157,23 +182,44 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 $response = curl_exec($ch);
+$curl_error = curl_error($ch);
 curl_close($ch);
 
-if ($response === FALSE) {
-    die('Error occurred while processing payment: ' . curl_error($ch));
+if ($response === false) {
+    error_log("M-Pesa request failed: " . $curl_error);
+    header("Location: error.php?message=" . urlencode("Error occurred while processing payment. Please try again."));
+    exit();
 }
 
 $response_data = json_decode($response, true);
+error_log("M-Pesa Response: " . json_encode($response_data));
 
 if (isset($response_data['errorCode'])) {
-    die("API Error: " . $response_data['errorMessage']);
+    error_log("M-Pesa API Error: " . $response_data['errorMessage']);
+    header("Location: error.php?message=" . urlencode($response_data['errorMessage']));
+    exit();
 }
 
 if (isset($response_data['ResponseCode']) && $response_data['ResponseCode'] == "0") {
-    // Store CheckoutRequestID in session for callback verification
     $_SESSION['checkout_request_id'] = $response_data['CheckoutRequestID'];
-    
-    // Enhanced success message with redirect
+
+    // Send notifications
+    $order_id = $_SESSION['order_id'];
+    $cart_items = $_SESSION['cart_items'];
+    $total = $_SESSION['totalAmount'];
+
+    sendOrderEmail($email, $order_id, $cart_items, $total);
+    sendOrderSMS('+' . $mpesa_number, $order_id, $total);
+
+    // Clear session data
+    unset($_SESSION['cart']);
+    unset($_SESSION['totalAmount']);
+    unset($_SESSION['order_id']);
+    unset($_SESSION['mpesa_number']);
+    unset($_SESSION['cart_items']);
+    unset($_SESSION['email']);
+
+    // Success page
     echo '<!DOCTYPE html>
     <html>
     <head>
@@ -232,29 +278,10 @@ if (isset($response_data['ResponseCode']) && $response_data['ResponseCode'] == "
         </div>
     </body>
     </html>';
-
-    // Send notifications using session data from checkout.php
-    if (isset($_SESSION['order_id']) && isset($_SESSION['cart_items']) && isset($_SESSION['totalAmount'])) {
-        $order_id = $_SESSION['order_id'];
-        $cart_items = $_SESSION['cart_items'];
-        $total = $_SESSION['totalAmount'];
-        $phone = $_SESSION['mpesa_number'];
-        $email = $_POST['email'];
-
-        sendOrderEmail($email, $order_id, $cart_items, $total);
-        sendOrderSMS($phone, $order_id, $total);
-    }
-
-    // Clear cart and session variables (except checkout_request_id)
-    unset($_SESSION['cart']);
-    unset($_SESSION['totalAmount']);
-    unset($_SESSION['order_id']);
-    unset($_SESSION['mpesa_number']);
-    unset($_SESSION['cart_items']);
-
-    // Note: Keeping $_SESSION['checkout_request_id'] for callback verification
     exit();
 } else {
-    echo "Payment failed: " . $response_data['ResponseDescription'];
+    error_log("M-Pesa Payment Failed: " . $response_data['ResponseDescription']);
+    header("Location: error.php?message=" . urlencode($response_data['ResponseDescription']));
+    exit();
 }
 ?>

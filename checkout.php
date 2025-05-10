@@ -1,5 +1,11 @@
+```php
 <?php
 session_start();
+
+// Load environment variables
+require_once 'vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
 // Redirect non-logged-in users
 if (!isset($_SESSION["user"])) {
@@ -101,6 +107,16 @@ try {
             $_SESSION['order_id'] = $order_id;
             $_SESSION['mpesa_number'] = $mpesa_number;
             $_SESSION['cart_items'] = $cart_items;
+            $_SESSION['email'] = $email;
+
+            // Log session data for debugging
+            error_log("Session data before redirect: " . print_r([
+                'totalAmount' => $_SESSION['totalAmount'],
+                'mpesa_number' => $_SESSION['mpesa_number'],
+                'order_id' => $_SESSION['order_id'],
+                'cart_items' => $_SESSION['cart_items'],
+                'email' => $_SESSION['email']
+            ], true));
 
             // Clear cart
             $_SESSION["cart"] = [];
@@ -474,12 +490,11 @@ try {
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav mx-auto">
-                        
                         <li class="nav-item">
                             <a class="nav-link" href="shop.php"><i class="fas fa-shopping-bag me-1"></i> Shop</a>
-                        </li>
+                         </li>
                         <li class="nav-item">
-                             <a href="cart.php" class="nav-link"><i class="fas fa-shopping-cart me-1"></i> Cart</a>
+                            <a href="cart.php" class="nav-link"><i class="fas fa-shopping-cart me-1"></i> Cart</a>
                         </li>
                         <li class="nav-item">
                             <a href="checkout.php" class="nav-link active"><i class="fas fa-credit-card me-1"></i> Checkout</a>
@@ -489,7 +504,6 @@ try {
                         </li>
                     </ul>
                     <div class="d-flex gap-2">
-                       
                         <a href="logout.php" class="btn btn-outline-primary"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
                     </div>
                 </div>
@@ -504,19 +518,21 @@ try {
             <p class="welcome">Welcome, <?php echo htmlspecialchars($user_name); ?>!</p>
             <?php if ($error_message): ?>
                 <div class="error"><?php echo htmlspecialchars($error_message); ?></div>
+            <?php elseif (isset($_GET['error'])): ?>
+                <div class="error"><?php echo htmlspecialchars($_GET['error']); ?></div>
             <?php endif; ?>
             <div class="row">
                 <div class="col-md-6">
                     <div class="checkout-container">
                         <h2>Billing & Payment Information</h2>
-                        <form id="payment-form" action="mpesa.php" method="post">
+                        <form id="payment-form" action="checkout.php" method="post">
                             <div class="form-group">
                                 <label for="name">Full Name</label>
                                 <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user_name); ?>" readonly required>
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" readonly required>
+                                <input type="email" id="email" name="email" required>
                             </div>
                             <div class="form-group">
                                 <label for="address">Address</label>
